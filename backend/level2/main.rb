@@ -35,7 +35,13 @@ end
 class Rental
   
   attr_reader :id, :car, :number_of_days, :distance, :projected_price
-  
+  LENGTH_OF_RENTAL_DISCOUNT = [
+    {:range => (0..1), :discount => 0.0},
+    {:range => (2..4), :discount => 0.1},
+    {:range => (5..10), :discount => 0.3},
+    {:range => (11..Float::INFINITY), :discount => 0.5}
+  ]
+    
   def initialize(id, rental_car, rental_details)
     
     if id.nil? || rental_car.nil? || rental_details[:start_date].nil? || rental_details[:end_date].nil? || rental_details[:distance].nil? then
@@ -61,14 +67,15 @@ class Rental
       raise "Distance can't be negative"
     end  
     
-    self.price
-    self.discount
+    self.calculate_price
+    self.calculate_discount
     
     rescue Exception => msg
       puts msg
   end
   
-  def discount()
+  def calculate_discount()
+    
     if @number_of_days.nil? then
       raise "Insufficient data (number of days) for discount calculation" 
     end
@@ -83,9 +90,12 @@ class Rental
     for day_number in 1..@number_of_days
      discount = 0.0
      
-     if day_number > 10 then discount = 0.5 
-     elsif day_number > 4 then discount = 0.3
-     elsif day_number > 1 then discount = 0.1
+     for rule in LENGTH_OF_RENTAL_DISCOUNT 
+       if !rule[:range].nil? 
+         if rule[:range].cover?(day_number)
+           discount = rule[:discount]
+         end
+       end
      end
       
      this_day_discount = price_per_day * discount
@@ -106,7 +116,7 @@ class Rental
   end
   
   
-  def price()
+  def calculate_price()
     if @car.price_per_day.nil? || @number_of_days.nil? || @car.price_per_km.nil? || @distance.nil?  then
       raise "Insufficient info to calculate price"
     end
@@ -126,7 +136,7 @@ class RentalOptions
   end
   
   def prepare_for_output()
-        
+    
     @output_hash = {rentals: []}
     for rental in @rentals 
       begin
