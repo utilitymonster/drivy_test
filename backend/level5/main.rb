@@ -297,7 +297,6 @@ class Rental
     
   end
   
-  
 end
 
 class RentalOptions
