@@ -213,7 +213,7 @@ class RentalOptions
         required_items = ["id", "projected_price", "projected_commission_components"]
       when :level4
         index_name = "rentals"
-        required_items = ["id", "projected_price", "projected_commission_components"]
+        required_items = ["id", "projected_price", "projected_commission_components", "options"]
       else 
         index_name = "rentals"
         required_items = ["id","projected_price"]
