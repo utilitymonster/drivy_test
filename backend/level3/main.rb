@@ -196,9 +196,12 @@ class RentalOptions
     @output_hash[index_name] = []
     for rental in @rentals 
       begin
-        for required_item in required_items 
-          if rental.instance_variable_get("@#{required_item}").nil? then
-            raise "Insufficient info for output"
+        
+        if !required_items.nil? then
+          for required_item in required_items 
+            if rental.instance_variable_get("@#{required_item}").nil? then
+              raise "Insufficient info for output"
+            end
           end
         end
 
