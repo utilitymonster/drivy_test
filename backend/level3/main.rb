@@ -246,7 +246,7 @@ end
 begin
 
   data_filename = "data.json"
-  output_filename = "test_output.json"
+  output_filename = "output.json"
   level_style = :level3
   rental_options = RentalOptions.new
 
