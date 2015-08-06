@@ -46,7 +46,7 @@ class Rental
   PRICE_PROCESS_ORDER = ['price', 'discount', 'commission']
   
   attr_reader :id, :car, :number_of_days, :distance, :projected_price, :total_commission
-  attr_accessor :projected_commission
+  attr_accessor :projected_commission_components
   
   def initialize(id, rental_car, rental_details)
     
@@ -143,12 +143,16 @@ class Rental
       end
     end
     
-    @total_commission = @projected_price * COMMISSION_PERCENTAGE
-    @projected_commission = {}
-    @projected_commission[:insurance_fee] = (total_commission * INSURANCE_PERCENTAGE_OF_COMMISSION).to_i
-    @projected_commission[:assistance_fee] = (@number_of_days * ASSISTANCE_FEE_PER_DAY).to_i    
-    @projected_commission[:drivy_fee] = (@total_commission - (@projected_commission[:insurance_fee] + @projected_commission[:assistance_fee])).to_i
+    if @number_of_days.nil? then
+      raise "Need number of days to calculate commission"
+    end
     
+    @total_commission = @projected_price * COMMISSION_PERCENTAGE
+    @projected_commission_components = {}
+    @projected_commission_components[:insurance_fee] = (total_commission * INSURANCE_PERCENTAGE_OF_COMMISSION).to_i
+    @projected_commission_components[:assistance_fee] = (@number_of_days * ASSISTANCE_FEE_PER_DAY).to_i    
+    @projected_commission_components[:drivy_fee] = (@total_commission - (@projected_commission_components[:insurance_fee] + @projected_commission_components[:assistance_fee])).to_i
+       
   end
   
   def calculate_price()
@@ -182,7 +186,7 @@ class RentalOptions
         required_items = ["id","projected_price"]
       when :level3
         index_name = "rentals"
-        required_items = ["id", "projected_price", "projected_commission"]
+        required_items = ["id", "projected_price", "projected_commission_components"]
       else 
         index_name = "rentals"
         required_items = ["id","projected_price"]
@@ -206,7 +210,7 @@ class RentalOptions
           when :level3
             rental_id = rental.id
             price = rental.projected_price
-            commission = rental.projected_commission      
+            commission = rental.projected_commission_components
             this_item = {id: rental_id, price: price, commission: commission}
           else
         end
@@ -242,7 +246,7 @@ end
 begin
 
   data_filename = "data.json"
-  output_filename = "output.json"
+  output_filename = "test_output.json"
   level_style = :level3
   rental_options = RentalOptions.new
 
